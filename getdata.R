@@ -15,7 +15,7 @@ if (!file.exists('data/Coursera-SwiftKey.zip')) {
 dir.create('data/training', recursive = TRUE)
 dir.create('data/testing', recursive = TRUE)
 set.seed(12345)
-sample_size <- .20
+sample_size <- .10
 for (fn in Sys.glob('data/final/en_US/*.txt')) {
   data <- readLines(fn)
   
