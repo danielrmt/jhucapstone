@@ -1,0 +1,130 @@
+---
+title: "Capstone Week 2 Report"
+author: "Daniel Ribeiro"
+date: "`r Sys.Date()`"
+output: html_document
+params:
+  remove_punct: TRUE
+  stem: FALSE
+  tolower: TRUE
+  remove_stopwords: "english"
+---
+
+## Introduction
+
+This report is a milestone report for week 2 of the capstone project for the
+Data Science Specialization offered by John Hopkins at Coursera.
+The main goal of the capstone project is to create a Natural Language Processing
+(NLP) app that can predict the next probable word as the user types some text.
+For this report, we explore some of the data from SwiftKey and have a first idea
+for a prediction strategy for the app.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
+library(quanteda)
+library(readtext)
+library(ggplot2)
+library(knitr)
+```
+
+## Sampling the dataset
+
+For the capstone proejct, we are working with a SwiftKey dataset coming from
+twitter, blogs and news. The original files are huge, they have 160-200MB each. 
+It would take a lot of computing resources to handle this data. We can see the
+size of the raw data below:
+
+```{r}
+fn <- Sys.glob('data/final/en_us/*.txt')
+kable(data.frame(filename = basename(fn), size = file.size(fn) / (1024^2)))
+```
+
+To save computing resources, we took a sample of 20% of each file to work as a 
+training set. Below we can see some summary of this dataset:
+
+```{r}
+data_text <- readtext("data/training/*.txt")
+data_corpus <- corpus(data_text)
+kable(summary(data_corpus))
+```
+
+We will explore more of this training data set on other sections of the report.
+
+
+## Word frequency distribution
+
+The plot below shows the wordcloud of the most frequent words on the dataset.
+
+```{r}
+data_dfm <- data_corpus %>%
+  dfm(tolower = params$tolower, remove = stopwords(params$remove_stopwords),
+      remove_punct = params$remove_punct, stem = params$stem)
+textplot_wordcloud(data_dfm, max_words = 200)
+```
+```{r}
+kable(topfeatures(data_dfm), row.names = TRUE, col.names = 'Freq')
+```
+
+
+## Frequencies of 2-grams
+
+The plot below shows the wordcloud of the most frequent bigrams on the dataset.
+
+```{r}
+bigram_dfm <- data_corpus %>%
+  dfm(tolower = params$tolower, remove = stopwords(params$remove_stopwords),
+      remove_punct = params$remove_punct, stem = params$stem, ngrams = 2)
+textplot_wordcloud(bigram_dfm, max_words = 200)
+```
+```{r}
+kable(topfeatures(bigram_dfm), row.names = TRUE, col.names = 'Freq')
+```
+
+The most frequent bigram is "of the". We can see that 7 of the 10 most frequent
+bigrams have "the" as its second word.
+
+## Frequencies of 3-grams
+```{r}
+trigram_dfm <- data_corpus %>%
+  dfm(tolower = params$tolower, remove = stopwords(params$remove_stopwords),
+      remove_punct = params$remove_punct, stem = params$stem, ngrams = 3)
+textplot_wordcloud(trigram_dfm, max_words = 200)
+```
+```{r}
+kable(topfeatures(trigram_dfm), row.names = TRUE, col.names = 'Freq')
+```
+
+The most frequent trigram is "thanks for the". We can see some of the most
+frequent bigrams among the trigrams, like "for the" in "thanks for the", 
+"of the" in "one of the", "to be" in "to be a" and "going to be", "i have" in
+"i have a" and "i have to". There is probably a typo on "i donâ t".
+
+## Coverage
+
+The plot below plots how much coverage a certain number of words have.
+
+```{r}
+topf <- topfeatures(data_dfm, ncol(data_dfm))
+top50pp <- sum(cumsum(topf) / sum(topf) <= .5)
+top90pp <- sum(cumsum(topf) / sum(topf) <= .9)
+qplot(y = cumsum(topf) / sum(topf), x = 1:length(topf), geom = 'line') +
+  geom_hline(yintercept = .5) + geom_hline(yintercept = .9) +
+  xlab('Number of unique words') + ylab('Cumulative Frequency')
+```
+
+We need `r top50pp` unique words to cover 50% of all word instances and 
+`r top90pp` unique words to cover 90%.
+
+
+
+## App strategy
+
+- First idea for prediction strategy: When the user types a word, suggest the three 
+most frequent bigrams starting with that word. When the user types more words, 
+suggest the three most frequent trigrams starting with the last two typed words.
+
+- To improve runtime, I should not run identify the n-grams on-the-fly on the
+shiny app, but store them in a Rdata file to be used by the app. I should store
+the three most frequents words, the three most frequent bigrams starting at each
+word, and the three most frequent trigrams starting at each bigram.
+
