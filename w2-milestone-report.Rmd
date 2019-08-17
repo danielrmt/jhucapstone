@@ -43,7 +43,7 @@ To save computing resources, we took a sample of 20% of each file to work as a
 training set. Below we can see some summary of this dataset:
 
 ```{r}
-data_text <- readtext("data/training/*.txt")
+data_text <- readtext("data/training/*.txt", encoding = 'UTF-8')
 data_corpus <- corpus(data_text)
 kable(summary(data_corpus))
 ```
@@ -97,7 +97,7 @@ kable(topfeatures(trigram_dfm), row.names = TRUE, col.names = 'Freq')
 The most frequent trigram is "thanks for the". We can see some of the most
 frequent bigrams among the trigrams, like "for the" in "thanks for the", 
 "of the" in "one of the", "to be" in "to be a" and "going to be", "i have" in
-"i have a" and "i have to". There is probably a typo on "i donâ t".
+"i have a" and "i have to". 
 
 ## Coverage
 
