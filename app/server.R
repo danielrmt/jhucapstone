@@ -8,6 +8,9 @@ for (i in 2:4) {
   ngrams[[paste0('ngram', i)]] <- readRDS(paste0('model/', i, 'grams.rds'))
   setDT(ngrams[[paste0('ngram', i)]])
 }
+print(ngrams[['ngram2']][feature == 'i',])
+print(ngrams[['ngram3']][feature == 'i want'])
+print(ngrams[['ngram4']][feature == 'i want to'])
 
 
 predict_word <- function(str) {
