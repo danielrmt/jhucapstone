@@ -12,23 +12,41 @@ This pitch presents a word prediction app based on n-grams, built for the
 Capstone Project for the Data Science Specialization from John Hopkins 
 University at Coursera.
 
+The data used was gathered by SwiftKey, and comes from twitter, blogs and news.
 
-
-Data Set and Prediction Method
-========================================================
-
-description of dataset
-
-description of the algorithm used to make the prediction
 
 App usage
 ========================================================
 
-describe the app, give instructions, and describe how it functions
+The app is very simple. There is only one input, where you can type a text.
+Based on whatever is typed by the user, the app will suggest words to complete
+the text. Here's a screenshot:
 
 ![screenshot](app_screenshot.png)
 
-Extra information
+
+Prediction algorithm
 ========================================================
 
-links
+The suggestions use the following method:
+
+- If input text has 3 or more words, suggest the most frequent quadrigrams
+starting with the last 3 words typed
+
+- If input text has 2 words or no quadrigram found, suggest the most frequent
+trigrams starting with the last 2 words typed
+
+- If input text has 1 word or no trigram found, suggest the most frequent 
+bigrams starting with the last typed word
+
+
+
+
+Links
+========================================================
+
+- The app is available at http://danielrmt.shinyapps.com/jhucapstone
+
+- This pitch is available at http://rpubs.com/danielrmt/jhucapstone
+
+
