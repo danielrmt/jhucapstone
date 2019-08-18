@@ -14,7 +14,7 @@ print(ngrams[['ngram4']][feature == 'i want to'])
 
 
 predict_word <- function(str) {
-  clean_str <- str_to_lower(str_trim(str))
+  clean_str <- gsub(' +', ' ', str_to_lower(str_trim(str)))
   words <- str_split(clean_str, ' ')[[1]]
   
   result <- character()
