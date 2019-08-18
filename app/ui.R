@@ -9,7 +9,7 @@ shinyUI(fluidPage(
   titlePanel("What are you thinking?"),
 
   
-  textInput('text', 'Type something below'),
+  textInput('text', 'Type something below and press space'),
   
   
   tableOutput('prediction')
