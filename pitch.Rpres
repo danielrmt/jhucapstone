@@ -1,0 +1,34 @@
+NLP Word Prediction App
+========================================================
+author: Daniel Ribeiro
+date: `r Sys.Date()`
+autosize: false
+
+
+Introduction
+========================================================
+
+This pitch presents a word prediction app based on n-grams, built for the
+Capstone Project for the Data Science Specialization from John Hopkins 
+University at Coursera.
+
+
+
+Data Set and Prediction Method
+========================================================
+
+description of dataset
+
+description of the algorithm used to make the prediction
+
+App usage
+========================================================
+
+describe the app, give instructions, and describe how it functions
+
+![screenshot](app_screenshot.png)
+
+Extra information
+========================================================
+
+links
