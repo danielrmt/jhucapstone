@@ -13,14 +13,19 @@ Capstone Project for the Data Science Specialization from John Hopkins
 University at Coursera.
 
 The data used was gathered by SwiftKey, and comes from twitter, blogs and news.
+I used the quanteda package to extract the bigrams, trigrams and quadrigrams 
+frequencies. Those frequencies are stored in a RDS format, and loaded by the 
+app for the predictions.
 
 
 App usage
 ========================================================
 
 The app is very simple. There is only one input, where you can type a text.
-Based on whatever is typed by the user, the app will suggest words to complete
-the text. Here's a screenshot:
+When "space" is pressed, the app will suggest words to complete the text, based 
+on whatever was typed by the user. 
+
+Here's a screenshot:
 
 ![screenshot](app_screenshot.png)
 
