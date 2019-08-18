@@ -14,6 +14,7 @@ params <- list(tolower = TRUE,
 train_corpus <- readtext("data/training/*.txt", encoding = 'UTF-8') %>%
   corpus()
 
+
 # Extract top 3 words
 train_words <- train_corpus %>%
   dfm(tolower = params$tolower, remove = stopwords(params$remove_stopwords),
@@ -22,66 +23,22 @@ train_words <- train_corpus %>%
 saveRDS(train_words, 'app/model/train_words.rds')
 gc()
 
-# Extract bigrams
-train_bigrams <- train_corpus %>%
-  dfm(tolower = params$tolower, remove = stopwords(params$remove_stopwords),
-      remove_punct = params$remove_punct, stem = params$stem, ngrams = 2)
-train_bigrams <- topfeatures(train_bigrams, length(train_bigrams))
-saveRDS(train_bigrams, 'app/model/train_bigrams.rds')
-gc()
-
-
-# Extract trigrams
-train_trigrams <- train_corpus %>%
-  dfm(tolower = params$tolower, remove = stopwords(params$remove_stopwords),
-      remove_punct = params$remove_punct, stem = params$stem, ngrams = 3)
-train_trigrams <- topfeatures(train_trigrams, length(train_trigrams))
-saveRDS(train_trigrams, 'app/model/train_trigrams.rds')
-gc()
-
-# Extract quadrigrams
-train_quadrigrams <- train_corpus %>%
-  dfm(tolower = params$tolower, remove = stopwords(params$remove_stopwords),
-      remove_punct = params$remove_punct, stem = params$stem, ngrams = 4)
-train_quadrigrams <- topfeatures(train_quadrigrams, length(train_quadrigrams))
-saveRDS(train_quadrigrams, 'app/model/train_quadrigrams.rds')
-gc()
-
-
-# Prediction function
-predict_word <- function(str) {
-  words <- str %>%
-    str_trim() %>%
-    str_to_lower() %>%
-    str_split(' ')
-  words <- words[[1]]
-  
-  if (length(words) >= 3) {
-    query_pattern <- paste0('^',
-                            words[length(words)-2],
-                            '_',
-                            words[length(words)-1],
-                            '_',
-                            words[length(words)],
-                            '_')
-    result <- head(train_quadrigrams[grep(query_pattern, names(train_quadrigrams))])
-  }
-  if (length(words) >= 2 && length(result) == 0) {
-    query_pattern <- paste0('^',
-                            words[length(words)-1],
-                            '_',
-                            words[length(words)],
-                            '_')
-    result <- head(train_trigrams[grep(query_pattern, names(train_trigrams))])
-  }
-  if (length(words) >= 1 && length(result) == 0) {
-    query_pattern <- paste0('^',
-                            words[length(words)],
-                            '_')
-    result <- head(train_bigrams[grep(query_pattern, names(train_bigrams))])
-  } 
-  if (length(result) == 0) {
-    result <- train_words
-  }
-  result
+# Extract ngrams
+for (i in 2:4) {
+  train_ngrams <- train_corpus %>%
+    dfm(tolower = TRUE, remove = stopwords('english'),
+        remove_twitter = TRUE, 
+        remove_punct = TRUE, stem = FALSE, ngrams = i)
+  train_ngrams <- topfeatures(train_ngrams, length(train_ngrams))
+  train_ngrams <- data.table(ngram = names(train_ngrams),
+                             freq = train_ngrams)
+  train_ngrams[, feature := str_trim(gsub('_', ' ', str_extract(ngram, '^.+_')))]
+  train_ngrams[, predict := gsub('_', '', str_extract(ngram, '_[^_]+$'))]
+  train_ngrams[, ngram := NULL]
+  setkey(train_ngrams, feature, predict)
+  setorder(train_ngrams, feature, -freq)
+  train_ngrams <- train_ngrams[, head(.SD, 5), by=feature]
+  saveRDS(train_ngrams, paste0('app/model/', i, 'grams.rds'))
+  gc()
 }
+
