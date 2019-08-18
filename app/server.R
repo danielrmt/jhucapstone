@@ -1,6 +1,6 @@
 
 library(shiny)
-library(tidyverse)
+library(stringr)
 library(data.table)
 
 ngrams <- list()
@@ -11,12 +11,8 @@ for (i in 2:4) {
 
 
 predict_word <- function(str) {
-  clean_str <- str %>%
-    str_trim() %>%
-    str_to_lower()
-  words <- clean_str %>%
-    str_split(' ')
-  words <- words[[1]]
+  clean_str <- str_to_lower(str_trim(str))
+  words <- str_split(clean_str, ' ')[[1]]
   
   result <- character()
   for (i in 4:2) {
