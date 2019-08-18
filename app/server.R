@@ -45,19 +45,19 @@ predict_word <- function(str) {
     result <- train_words
   }
   if (length(result) > 0) {
-    names(result) <- str_extract(names(result), '_([^_])+$')
+    names(result) <- str_extract(names(result), '_[^_]+$')
   }
   result
 }
 
 
 shinyServer(function(input, output) {
-  predict <- eventReactive(input$predict, {
-    predict_word(tolower(input$text))
-  })
+
 
   output$prediction <- renderTable({
-    names(predict())
-  }, colnames = FALSE)
+    x <- names(predict_word(tolower(input$text)))
+    x <- substr(x, 2, nchar(x))
+    data.frame(Suggestions = x)
+  }, colnames = TRUE)
 
 })
